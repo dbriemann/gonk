@@ -38,6 +38,8 @@ var (
 
 	productionFactor = 0.1
 
-	frames  uint64
-	fpsText *text.Text
+	frames      uint64
+	fpsText     *text.Text
+	objectsText *text.Text
+	objectCount uint64 = 1 // Includes the sun at the start.
 )

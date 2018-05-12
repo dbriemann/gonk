@@ -50,8 +50,8 @@ func initPlayers(playerName string, ais int) {
 	}
 }
 
-// We distribute the planets homogeneously on the X axis starting inside of the given range (span).
 func initSolarSystem(planetAmount, maxSatellites, minDist, maxDist int) {
+	// We distribute the planets homogeneously on the X axis inside the given range (span).
 	span := maxDist - minDist
 	step := span / planetAmount
 	current := minDist
@@ -134,7 +134,9 @@ func draw() {
 	fpsText.Clear()
 	fpsText.WriteString(fmt.Sprintf("FPS: %d", int(math.Round(fps))))
 	fpsText.Draw(window, pixel.IM)
-
+	objectsText.Clear()
+	objectsText.WriteString(fmt.Sprintf("Objects: %d", objectCount))
+	objectsText.Draw(window, pixel.IM)
 }
 
 func run() {
@@ -144,9 +146,12 @@ func run() {
 	initPlayers("RagingDave", 0)
 	initSolarSystem(12, 3, 100, int(screenHeight/2))
 
+	// TODO init texts in extra function at some point.
 	atlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
 	fpsText = text.New(pixel.V(10, window.Bounds().H()-20), atlas)
 	fpsText.Color = colornames.Antiquewhite
+	objectsText = text.New(pixel.V(10, window.Bounds().H()-40), atlas)
+	objectsText.Color = colornames.Antiquewhite
 
 	start := time.Now()
 	now := start

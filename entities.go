@@ -13,6 +13,7 @@ type planet struct {
 	satellites    []*planet
 	ships         []*ship
 	shipsProduced float64
+	shipAngleMod  float64
 	size          float64
 }
 
@@ -39,9 +40,20 @@ func newPlanet(dist, size, dir float64, vel pixel.Vec, anchor *pixel.Vec, player
 	for i := 0; i < len(p.ships); i++ {
 		p.ships[i] = newShip(p, player)
 	}
-	p.distributeShips()
+	p.setShips(0)
+
+	objectCount++
 
 	return p
+}
+
+// rotateGroup rotates the planet and adjusts the position of its satellites accordingly.
+func (p *planet) rotateGroup(dt float64) {
+	dvec := p.rotate(dt)
+	for i := 0; i < len(p.satellites); i++ {
+		p.satellites[i].pos.X += dvec.X
+		p.satellites[i].pos.Y += dvec.Y
+	}
 }
 
 func (p *planet) update(dt float64) {
@@ -67,16 +79,7 @@ func (p *planet) update(dt float64) {
 		p.shipsProduced--
 	}
 
-	p.distributeShips()
-}
-
-// rotateGroup rotates the planet and adjust the position of its satellites accordingly.
-func (p *planet) rotateGroup(dt float64) {
-	dvec := p.rotate(dt)
-	for i := 0; i < len(p.satellites); i++ {
-		p.satellites[i].pos.X += dvec.X
-		p.satellites[i].pos.Y += dvec.Y
-	}
+	p.setShips(dt)
 }
 
 func (p *planet) draw() {
@@ -91,16 +94,20 @@ func (p *planet) draw() {
 }
 
 // distributeShips evenly distributes ships around a planet.
-func (p *planet) distributeShips() {
+func (p *planet) setShips(dt float64) {
 	amount := len(p.ships)
 	step := (2 * math.Pi) / float64(amount)
+	p.shipAngleMod += dt * 0.5
+	if p.shipAngleMod > 2*math.Pi {
+		p.shipAngleMod -= 2 * math.Pi
+	}
 
 	for i := 0; i < amount; i++ {
 		p.ships[i].pos.X = p.pos.X + p.ships[i].dist
 		p.ships[i].pos.Y = p.pos.Y
 
 		omega := float64(i) * step
-		rotatePoint(&p.pos, &p.ships[i].pos, omega)
+		rotatePoint(&p.pos, &p.ships[i].pos, omega+p.shipAngleMod)
 	}
 }
 
@@ -126,7 +133,9 @@ func newShip(planet *planet, player *player) *ship {
 		sp = &ship{}
 	}
 
-	// TODO magic numbers
+	objectCount++
+
+	// TODO remove magic numbers
 	sp.dist = planet.size * 2
 	sp.anchor = &planet.pos
 	sp.vel = pixel.V(5, 5)
