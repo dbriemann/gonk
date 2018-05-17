@@ -11,7 +11,6 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"golang.org/x/image/colornames"
-	"golang.org/x/image/font/basicfont"
 )
 
 func initScreen() {
@@ -89,6 +88,7 @@ func initSolarSystem(planetAmount, maxSatellites, minDist, maxDist int) {
 
 func makeBasicShapes() {
 	imd = imdraw.New(nil)
+	imd.Precision = 16
 	// Draw the sun.
 	imd.Color = colornames.Gold
 	imd.Push(pixel.ZV)
@@ -147,10 +147,10 @@ func run() {
 	initSolarSystem(12, 3, 100, int(screenHeight/2))
 
 	// TODO init texts in extra function at some point.
-	atlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	fpsText = text.New(pixel.V(10, window.Bounds().H()-20), atlas)
+	// atlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
+	fpsText = text.New(pixel.V(10, window.Bounds().H()-20), text.Atlas7x13)
 	fpsText.Color = colornames.Antiquewhite
-	objectsText = text.New(pixel.V(10, window.Bounds().H()-40), atlas)
+	objectsText = text.New(pixel.V(10, window.Bounds().H()-40), text.Atlas7x13)
 	objectsText.Color = colornames.Antiquewhite
 
 	start := time.Now()
