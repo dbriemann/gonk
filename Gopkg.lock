@@ -17,7 +17,6 @@
   name = "github.com/faiface/pixel"
   packages = [
     ".",
-    "imdraw",
     "pixelgl",
     "text"
   ]
@@ -41,6 +40,12 @@
   name = "github.com/go-gl/mathgl"
   packages = ["mgl32"]
   revision = "5ab0e04e1f55a10f3a71b1fccc60ca2ee9a0bc02"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/ojrac/opensimplex-go"
+  packages = ["."]
+  revision = "c0d2b8b324684d1e69e72eaf01f69ff700e3396a"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -68,11 +73,11 @@
     "html",
     "html/atom"
   ]
-  revision = "640f4622ab692b87c2f3a94265e6f579fe38263d"
+  revision = "57065200b4b034a1c8ad54ff77069408c2218ae6"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "11a1b047727eb6d94ada01b9d58532f78f6153384f04de306d3aeb1186e29bc9"
+  inputs-digest = "32a65f9b44f97d3b9b838ce7c63a4dccc8ebca7dd77746b1d8d6f3efd0e83f08"
   solver-name = "gps-cdcl"
   solver-version = 1

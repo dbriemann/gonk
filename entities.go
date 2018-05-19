@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/pixelgl"
 )
 
 type planet struct {
@@ -14,10 +15,12 @@ type planet struct {
 	ships         []*ship
 	shipsProduced float64
 	shipAngleMod  float64
-	size          float64
+	radius        float64
+
+	sprite *pixelgl.Canvas
 }
 
-func newPlanet(dist, size, dir float64, vel pixel.Vec, anchor *pixel.Vec, player *player) *planet {
+func newPlanet(dist, radius, dir float64, vel pixel.Vec, anchor *pixel.Vec, player *player, sprite *pixelgl.Canvas) *planet {
 	p := &planet{
 		orb: orb{
 			dist:   dist,
@@ -26,9 +29,10 @@ func newPlanet(dist, size, dir float64, vel pixel.Vec, anchor *pixel.Vec, player
 			dir:    dir,
 		},
 		player:     player,
-		size:       size,
+		radius:     radius,
 		satellites: []*planet{},
-		ships:      make([]*ship, int(size/3)),
+		ships:      make([]*ship, int(radius/3)),
+		sprite:     sprite,
 	}
 
 	if anchor != nil {
@@ -59,7 +63,7 @@ func (p *planet) rotateGroup(dt float64) {
 func (p *planet) update(dt float64) {
 	p.rotateGroup(dt)
 	// Ship production depends on planet size: production = sqrt(radius)/5
-	prod := math.Sqrt(p.size) * productionFactor
+	prod := math.Sqrt(p.radius) * productionFactor
 	p.shipsProduced += prod * dt
 
 	// Add new ships to slice.
@@ -82,10 +86,9 @@ func (p *planet) update(dt float64) {
 	p.setShips(dt)
 }
 
-func (p *planet) draw() {
-	imd.Color = p.color
-	imd.Push(p.pos)
-	imd.Circle(p.size, 0)
+func (p *planet) draw(translation pixel.Matrix) {
+	// TODO magic numbers
+	p.sprite.DrawColorMask(worldCanvas, pixel.IM.Moved(p.pos).Scaled(p.pos, p.radius/30), nil)
 
 	// Draw all ships stationed at this planet.
 	for _, s := range p.ships {
@@ -136,7 +139,7 @@ func newShip(planet *planet, player *player) *ship {
 	objectCount++
 
 	// TODO remove magic numbers
-	sp.dist = planet.size * 2
+	sp.dist = planet.radius * 2
 	sp.anchor = &planet.pos
 	sp.vel = pixel.V(5, 5)
 	sp.dir = 1
@@ -146,7 +149,5 @@ func newShip(planet *planet, player *player) *ship {
 }
 
 func (s *ship) draw() {
-	imd.Color = s.color
-	imd.Push(s.pos)
-	imd.Circle(2, 0)
+	sprites.ship.Draw(batches.ships, pixel.IM.Moved(s.pos))
 }

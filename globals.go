@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/faiface/pixel/imdraw"
+	opensimplex "github.com/ojrac/opensimplex-go"
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
@@ -21,8 +21,8 @@ var (
 	screenHeight = 800
 	title        = "Gonk"
 
+	// batch       *pixel.Batch
 	worldCanvas *pixelgl.Canvas
-	imd         *imdraw.IMDraw
 
 	// Our 'camera' targets (0,0) which will be the center of the screen.
 	camPos = pixel.ZV
@@ -31,9 +31,20 @@ var (
 	planets []*planet
 	players []player
 
+	sprites struct {
+		planets []*pixelgl.Canvas
+		sun     *pixelgl.Canvas
+		ship    *pixelgl.Canvas
+	}
+
+	batches struct {
+		ships   *pixel.Batch
+		planets *pixel.Batch
+	}
+
 	origin         = &pixel.Vec{X: 0, Y: 0}
-	planetSizes    = []int{7, 8, 9}
-	satelliteSizes = []int{3, 4, 5}
+	planetSizes    = []int{9, 10, 11}
+	satelliteSizes = []int{5, 6, 7}
 	recycledShips  = []*ship{}
 
 	productionFactor = 0.1
@@ -42,4 +53,6 @@ var (
 	fpsText     *text.Text
 	objectsText *text.Text
 	objectCount uint64 = 1 // Includes the sun at the start.
+
+	noise *opensimplex.Noise
 )

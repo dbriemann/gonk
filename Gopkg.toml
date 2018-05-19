@@ -31,6 +31,10 @@
 
 [[constraint]]
   branch = "master"
+  name = "github.com/ojrac/opensimplex-go"
+
+[[constraint]]
+  branch = "master"
   name = "golang.org/x/image"
 
 [prune]

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"golang.org/x/image/colornames"
@@ -24,8 +23,10 @@ func initScreen() {
 	if err != nil {
 		panic(err)
 	}
+
 	window = win
 	worldCanvas = pixelgl.NewCanvas(win.Bounds())
+	// batch = pixel.NewBatch(&pixel.TrianglesData{}, sprites.sun)
 	// Set the camera to look at camPos.
 	cam = pixel.IM.Moved(worldCanvas.Bounds().Center().Sub(camPos))
 	worldCanvas.SetMatrix(cam)
@@ -49,6 +50,18 @@ func initPlayers(playerName string, ais int) {
 	}
 }
 
+func genSprites(planets int) {
+
+	for i := 0; i < planets; i++ {
+		sprite := genMoon(30)
+		sprites.planets = append(sprites.planets, sprite)
+	}
+	sprites.sun = genMoon(64) //genGradientDisc(30, 0.6, colornames.Gold)
+
+	sprites.ship = genGradientDisc(2, 1, colornames.White)
+	batches.ships = pixel.NewBatch(&pixel.TrianglesData{}, sprites.ship)
+}
+
 func initSolarSystem(planetAmount, maxSatellites, minDist, maxDist int) {
 	// We distribute the planets homogeneously on the X axis inside the given range (span).
 	span := maxDist - minDist
@@ -57,7 +70,8 @@ func initSolarSystem(planetAmount, maxSatellites, minDist, maxDist int) {
 
 	for i := 0; i < planetAmount; i++ {
 		size, vel, dir := genPlanetParameters(planetSizes)
-		p := newPlanet(float64(current), size, dir, pixel.V(vel, vel), origin, &players[0])
+		r := rand.Intn(len(sprites.planets))
+		p := newPlanet(float64(current), size, dir, pixel.V(vel, vel), origin, &players[0], sprites.planets[r])
 		// Add a little random adjustment to the planet's position to make
 		// it look less static.
 		shift := float64(rand.Intn(step/3)*2 - step/3)
@@ -71,7 +85,8 @@ func initSolarSystem(planetAmount, maxSatellites, minDist, maxDist int) {
 
 		for s := 0; s < sats; s++ {
 			size, vel, dir := genPlanetParameters(satelliteSizes)
-			sat := newPlanet(float64((s+1)*20), size, dir, pixel.V(vel, vel), &p.pos, &players[0])
+			r = rand.Intn(len(sprites.planets))
+			sat := newPlanet(float64((s+1)*20), size, dir, pixel.V(vel, vel), &p.pos, &players[0], sprites.planets[r])
 			sat.rotate(rand.Float64() * sat.dist)
 			p.satellites = append(p.satellites, sat)
 			planets = append(planets, sat)
@@ -84,15 +99,6 @@ func initSolarSystem(planetAmount, maxSatellites, minDist, maxDist int) {
 		// Next planet please..
 		current += step
 	}
-}
-
-func makeBasicShapes() {
-	imd = imdraw.New(nil)
-	imd.Precision = 16
-	// Draw the sun.
-	imd.Color = colornames.Gold
-	imd.Push(pixel.ZV)
-	imd.Circle(20, 0)
 }
 
 // setFPS allows us to set max frames per second.
@@ -118,14 +124,15 @@ func update(dt float64) {
 func draw() {
 	// Clear everything before drawing.
 	window.Clear(colornames.Black)
-	worldCanvas.Clear(colornames.Black)
+	worldCanvas.Clear(pixel.Alpha(0))
+	batches.ships.Clear()
 
 	// Draw the game objects onto the canvas.
-	makeBasicShapes()
+	sprites.sun.Draw(worldCanvas, pixel.IM)
 	for _, p := range planets {
-		p.draw()
+		p.draw(cam)
 	}
-	imd.Draw(worldCanvas)
+	batches.ships.Draw(worldCanvas)
 
 	// Draw the canvas onto the window.
 	worldCanvas.Draw(window, cam)
@@ -140,14 +147,16 @@ func draw() {
 }
 
 func run() {
+	rand.Seed(time.Now().UnixNano())
+
 	// First call all init functions to setup the game.
 	initScreen()
 	setFPS(0)
 	initPlayers("RagingDave", 0)
+	genSprites(10)
 	initSolarSystem(12, 3, 100, int(screenHeight/2))
 
 	// TODO init texts in extra function at some point.
-	// atlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
 	fpsText = text.New(pixel.V(10, window.Bounds().H()-20), text.Atlas7x13)
 	fpsText.Color = colornames.Antiquewhite
 	objectsText = text.New(pixel.V(10, window.Bounds().H()-40), text.Atlas7x13)
