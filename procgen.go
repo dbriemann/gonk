@@ -70,6 +70,34 @@ func genGradientDisc(radius, density float64, c color.Color) (canvas *pixelgl.Ca
 	return
 }
 
+func genSaturn(radius float64) (canvas *pixelgl.Canvas) {
+	noise = opensimplex.NewWithSeed(time.Now().UnixNano())
+	size := int(radius*2 + 1)
+	canvas = genGradientDisc(radius, 0.95, colornames.White)
+	pixels := canvas.Pixels()
+
+	scale := radius / (1000 * (radius / 40) * (radius / 40))
+
+	for y := 0; y < size; y++ {
+		n := octaveNoise(16, 0, float64(y), 0.5, scale, 0, 1)
+		for x := 0; x < size; x++ {
+			index := y*size*4 + x*4
+			r, g, b, a := float64(pixels[index]), float64(pixels[index+1]), float64(pixels[index+2]), float64(pixels[index+3])
+
+			if a > 0 {
+				pixels[index] = brighten(uint8(r*n), 1.5)
+				pixels[index+1] = brighten(uint8(g*n), 1.5)
+				pixels[index+2] = brighten(uint8(b*n), 1.5)
+				pixels[index+3] = 255 // Make the planet opaque
+			}
+		}
+	}
+
+	canvas.SetPixels(pixels)
+
+	return
+}
+
 func genMoon(radius float64) (canvas *pixelgl.Canvas) {
 	noise = opensimplex.NewWithSeed(time.Now().UnixNano())
 	size := int(radius*2 + 1)

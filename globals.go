@@ -32,6 +32,7 @@ var (
 	players []player
 
 	sprites struct {
+		// TODO planets -> one canvas -> spritesheet -> batch
 		planets []*pixelgl.Canvas
 		sun     *pixelgl.Canvas
 		ship    *pixelgl.Canvas

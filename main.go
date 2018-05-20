@@ -56,7 +56,7 @@ func genSprites(planets int) {
 		sprite := genMoon(30)
 		sprites.planets = append(sprites.planets, sprite)
 	}
-	sprites.sun = genMoon(64) //genGradientDisc(30, 0.6, colornames.Gold)
+	sprites.sun = genSaturn(64) //genGradientDisc(30, 0.6, colornames.Gold)
 
 	sprites.ship = genGradientDisc(2, 1, colornames.White)
 	batches.ships = pixel.NewBatch(&pixel.TrianglesData{}, sprites.ship)
