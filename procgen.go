@@ -11,20 +11,20 @@ import (
 	"golang.org/x/image/colornames"
 )
 
-// see https://cmaher.github.io/posts/working-with-simplex-noise/
-func octaveNoise(iterations int, x, y, persistence, scale, low, high float64) (result float64) {
-	maxAmp := 0.0
+// layerNoise creates noise from multiple layers of simplex noise.
+// See https://cmaher.github.io/posts/working-with-simplex-noise/ for the original function.
+func layerNoise(layers int, x, y, persistence, freq, low, high float64) (result float64) {
+	ampSum := 0.0
 	amp := 1.0
-	freq := scale
 
-	for i := 0; i < iterations; i++ {
+	for i := 0; i < layers; i++ {
 		result += noise.Eval2(x*freq, y*freq) * amp
-		maxAmp += amp
+		ampSum += amp
 		amp *= persistence
 		freq *= 2
 	}
 
-	result /= maxAmp
+	result /= ampSum
 
 	result = result*(high-low)/2 + (high+low)/2
 	return
@@ -70,49 +70,23 @@ func genGradientDisc(radius, density float64, c color.Color) (canvas *pixelgl.Ca
 	return
 }
 
-func genSaturn(radius float64) (canvas *pixelgl.Canvas) {
+func genPlanet(radius float64) (canvas *pixelgl.Canvas) {
 	noise = opensimplex.NewWithSeed(time.Now().UnixNano())
 	size := int(radius*2 + 1)
-	canvas = genGradientDisc(radius, 0.95, colornames.White)
+	canvas = genGradientDisc(radius, 0.98, colornames.White)
 	pixels := canvas.Pixels()
 
-	scale := radius / (1000 * (radius / 40) * (radius / 40))
+	freq := radius / (1000 * (radius / 40) * (radius / 40))
 
 	for y := 0; y < size; y++ {
-		n := octaveNoise(16, 0, float64(y), 0.5, scale, 0, 1)
+		nn := layerNoise(16, 0, float64(y), 0.5, freq, 0.25, 1)
 		for x := 0; x < size; x++ {
 			index := y*size*4 + x*4
 			r, g, b, a := float64(pixels[index]), float64(pixels[index+1]), float64(pixels[index+2]), float64(pixels[index+3])
 
 			if a > 0 {
-				pixels[index] = brighten(uint8(r*n), 1.5)
-				pixels[index+1] = brighten(uint8(g*n), 1.5)
-				pixels[index+2] = brighten(uint8(b*n), 1.5)
-				pixels[index+3] = 255 // Make the planet opaque
-			}
-		}
-	}
-
-	canvas.SetPixels(pixels)
-
-	return
-}
-
-func genMoon(radius float64) (canvas *pixelgl.Canvas) {
-	noise = opensimplex.NewWithSeed(time.Now().UnixNano())
-	size := int(radius*2 + 1)
-	canvas = genGradientDisc(radius, 0.95, colornames.White)
-	pixels := canvas.Pixels()
-
-	scale := radius / (1000 * (radius / 40) * (radius / 40))
-
-	for y := 0; y < size; y++ {
-		for x := 0; x < size; x++ {
-			index := y*size*4 + x*4
-			r, g, b, a := float64(pixels[index]), float64(pixels[index+1]), float64(pixels[index+2]), float64(pixels[index+3])
-
-			if a > 0 {
-				n := octaveNoise(16, float64(x), float64(y), 0.5, scale, 0, 1)
+				nnn := layerNoise(16, float64(x), float64(y), 0.5, freq, 0, 1)
+				n := (nnn + nn) / 2
 
 				pixels[index] = brighten(uint8(r*n), 1.5)
 				pixels[index+1] = brighten(uint8(g*n), 1.5)

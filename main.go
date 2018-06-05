@@ -26,7 +26,7 @@ func initScreen() {
 
 	window = win
 	worldCanvas = pixelgl.NewCanvas(win.Bounds())
-	// batch = pixel.NewBatch(&pixel.TrianglesData{}, sprites.sun)
+
 	// Set the camera to look at camPos.
 	cam = pixel.IM.Moved(worldCanvas.Bounds().Center().Sub(camPos))
 	worldCanvas.SetMatrix(cam)
@@ -50,15 +50,33 @@ func initPlayers(playerName string, ais int) {
 	}
 }
 
-func genSprites(planets int) {
+// func noiseStripe() (canvas *pixelgl.Canvas) {
+// 	xsize, ysize := 400, 100
+// 	canvas = pixelgl.NewCanvas(pixel.R(0, 0, float64(xsize), float64(ysize)))
+// 	pixels := canvas.Pixels()
 
+// 	for y := 0; y < ysize; y++ {
+// 		for x := 0; x < xsize; x++ {
+// 			noise := uint8(layerNoise(8, float64(x), float64(y), 0.5, 0.02, 0, 255))
+// 			index := y*xsize*4 + x*4
+// 			pixels[index] = noise
+// 			pixels[index+1] = noise
+// 			pixels[index+2] = noise
+// 			pixels[index+3] = 255
+// 		}
+// 	}
+// 	canvas.SetPixels(pixels)
+
+// 	return
+// }
+
+func genSprites(planets int) {
 	for i := 0; i < planets; i++ {
-		sprite := genMoon(30)
+		sprite := genPlanet(30)
 		sprites.planets = append(sprites.planets, sprite)
 	}
-	sprites.sun = genSaturn(64) //genGradientDisc(30, 0.6, colornames.Gold)
-
-	sprites.ship = genGradientDisc(2, 1, colornames.White)
+	sprites.sun = genGradientDisc(30, 0.6, colornames.Gold)
+	sprites.ship = genGradientDisc(16, 0.95, colornames.White)
 	batches.ships = pixel.NewBatch(&pixel.TrianglesData{}, sprites.ship)
 }
 
@@ -132,9 +150,10 @@ func draw() {
 	for _, p := range planets {
 		p.draw(cam)
 	}
+
 	batches.ships.Draw(worldCanvas)
 
-	// Draw the canvas onto the window.
+	// // Draw the canvas onto the window.
 	worldCanvas.Draw(window, cam)
 
 	// Draw HUD to window not canvas so we can use screen coordinates directly.
@@ -154,7 +173,7 @@ func run() {
 	setFPS(0)
 	initPlayers("RagingDave", 0)
 	genSprites(10)
-	initSolarSystem(12, 3, 100, int(screenHeight/2))
+	initSolarSystem(8, 3, 100, int(screenHeight/2))
 
 	// TODO init texts in extra function at some point.
 	fpsText = text.New(pixel.V(10, window.Bounds().H()-20), text.Atlas7x13)

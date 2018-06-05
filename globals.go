@@ -21,7 +21,6 @@ var (
 	screenHeight = 800
 	title        = "Gonk"
 
-	// batch       *pixel.Batch
 	worldCanvas *pixelgl.Canvas
 
 	// Our 'camera' targets (0,0) which will be the center of the screen.
@@ -39,8 +38,7 @@ var (
 	}
 
 	batches struct {
-		ships   *pixel.Batch
-		planets *pixel.Batch
+		ships *pixel.Batch
 	}
 
 	origin         = &pixel.Vec{X: 0, Y: 0}

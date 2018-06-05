@@ -17,6 +17,7 @@
   name = "github.com/faiface/pixel"
   packages = [
     ".",
+    "imdraw",
     "pixelgl",
     "text"
   ]
@@ -78,6 +79,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "32a65f9b44f97d3b9b838ce7c63a4dccc8ebca7dd77746b1d8d6f3efd0e83f08"
+  inputs-digest = "85245c032c029643ded55ff6e1c571106ffe53b6d2ee4223b1d42f74aca3793a"
   solver-name = "gps-cdcl"
   solver-version = 1

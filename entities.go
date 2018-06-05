@@ -100,7 +100,7 @@ func (p *planet) draw(translation pixel.Matrix) {
 func (p *planet) setShips(dt float64) {
 	amount := len(p.ships)
 	step := (2 * math.Pi) / float64(amount)
-	p.shipAngleMod += dt * 0.5
+	p.shipAngleMod += dt
 	if p.shipAngleMod > 2*math.Pi {
 		p.shipAngleMod -= 2 * math.Pi
 	}
@@ -149,5 +149,5 @@ func newShip(planet *planet, player *player) *ship {
 }
 
 func (s *ship) draw() {
-	sprites.ship.Draw(batches.ships, pixel.IM.Moved(s.pos))
+	sprites.ship.Draw(batches.ships, pixel.IM.Moved(s.pos).Scaled(s.pos, 0.125))
 }
